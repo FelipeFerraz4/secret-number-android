@@ -1,1 +1,1 @@
-# secret-number-android
+# Secret Number
