@@ -1,0 +1,36 @@
+name: Update Submodule in Parent Repo
+
+on:
+  push:
+    branches:
+      - main  # or develop
+
+jobs:
+  update-parent:
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout submodule repo
+        uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+
+      - name: Clone parent repository
+        run: |
+          git config --global user.name "github-actions[bot]"
+          git config --global user.email "github-actions[bot]@users.noreply.github.com"
+
+          git clone https://x-access-token:${{ secrets.PARENT_REPO_TOKEN }}@github.com/FelipeFerraz4/android.git
+          cd android
+          git checkout main
+
+          git submodule update --init --recursive
+          cd secret-number-android
+          git fetch
+          git checkout ${{ github.sha }}
+          cd ..
+
+          git add secret-number-android
+          git commit -m "chore: update submodule to latest commit ${{ github.sha }}" || echo "No changes to commit"
+          git push https://x-access-token:${{ secrets.PARENT_REPO_TOKEN }}@github.com/FelipeFerraz4/android.git
+      
